@@ -1,0 +1,59 @@
+/* Global Styles */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #d4ed91; /* Light green background */
+  }
+  
+  /* Hero Section */
+  .hero-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 50px;
+  }
+  
+  .hero-text {
+    max-width: 500px;
+  }
+  
+  .hero-text h1 {
+    font-size: 40px;
+    font-weight: bold;
+    color: #1a3807; /* Dark green */
+  }
+  
+  .hero-text p {
+    font-size: 16px;
+    color: #1a3807;
+  }
+  
+  .signup-btn, .login-btn {
+    display: inline-block;
+    padding: 15px 25px;
+    margin-top: 20px;
+    font-size: 16px;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .signup-btn {
+    background-color: #2e7d32; /* Green */
+    color: white;
+    border: none;
+  }
+  
+  .login-btn {
+    background-color: white;
+    color: #2e7d32;
+    border: 2px solid #2e7d32;
+    margin-left: 10px;
+  }
+  .hero-image img {
+    width: 100%;  /* Ändra storleken, t.ex. 50% av originalet */
+    max-width: 800px;  /* Maximal bredd */
+    height: auto;  /* Bevara proportionerna */
+  }
+  

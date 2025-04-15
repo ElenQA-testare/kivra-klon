@@ -1,0 +1,25 @@
+.document-list {
+    margin-top: 20px;
+    background: #f4f4f4;
+    padding: 20px;
+    border-radius: 6px;
+  }
+  
+  .document-list ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .document-list li {
+    padding: 5px 0;
+  }
+  
+  .document-list a {
+    text-decoration: none;
+    color: #0066cc;
+  }
+  
+  .document-list a:hover {
+    text-decoration: underline;
+  }
+  

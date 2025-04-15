@@ -1,0 +1,78 @@
+.user-menu {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .user-profile {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    background-color: #c8e6c9;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+  }
+  
+  .initials {
+    background-color: #4caf50;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+  }
+  
+  .arrow {
+    margin-left: 5px;
+  }
+  
+  .dropdown {
+    position: absolute;
+    right: 0;
+    margin-top: 8px;
+    background-color: #1d1d1d;
+    color: white;
+    padding: 12px;
+    border-radius: 10px;
+    width: 250px;
+    z-index: 1000;
+  }
+  
+  .dropdown-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .dropdown ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .dropdown ul li {
+    margin: 8px 0;
+    cursor: pointer;
+  }
+  
+  .logout {
+    background: none;
+    color: white;
+    border: 1px solid white;
+    padding: 6px 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+    cursor: pointer;
+  }
+  
+  .logout-all {
+    background: none;
+    color: red;
+    border: none;
+    margin-top: 6px;
+    cursor: pointer;
+  }
+  
