@@ -1,37 +1,50 @@
-// src/pages/HomeDashboard.js
 import React from "react";
 import "../styles/HomeDashboard.css";
 
-function HomeDashboard() {
+function HomeDashboard({ setActivePage, documents }) {
+  const unreadDocs = documents || [];
+
   return (
     <div className="home-dashboard">
-      <h1>Home</h1>
+      <h2 className="page-title">Home</h2>
 
-      <div className="summary-boxes">
-        <div className="box">
-          <span>📧</span>
-          <p>75 unread letters</p>
+      <div className="columns">
+        {/* All Senders Box */}
+        <div
+          className="column"
+          onClick={() => setActivePage("senders")}
+        >
+          <h3> All Senders</h3>
+          <p>Visa alla avsändare</p>
+          <ul className="doc-preview">
+            {unreadDocs.map((doc, index) => (
+              <li key={index}>{doc.originalname}</li>
+            ))}
+          </ul>
         </div>
-        <div className="box">
-          <span>👜</span>
-          <p>2 unhandled<br /><strong>SEK 626.00</strong></p>
-          <button className="pay-btn">Pay several</button>
+
+        {/* Unread Letters Box */}
+        <div
+          className="column"
+          onClick={() => setActivePage("unread")}
+        >
+          <h3> Unread Letters</h3>
+          <p>Du har {unreadDocs.length} olästa brev</p>
+          <ul className="doc-preview">
+            {unreadDocs.map((doc, index) => (
+              <li key={index}>
+                <a
+                  href={`http://localhost:5000/${doc.path}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {doc.originalname}
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
-
-      <section className="senders-section">
-        <h2>Senders</h2>
-        <div className="senders-grid">
-          {[
-            "Fora", "Kommunal", "Skatteverket", "Försäkringskassan", "Hedda Care", "KPA Pension"
-          ].map((name, i) => (
-            <div key={i} className="sender-card">
-              <div className="logo-placeholder">{name[0]}</div>
-              <p>{name}</p>
-            </div>
-          ))}
-        </div>
-      </section>
     </div>
   );
 }

@@ -1,10 +1,13 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const DocumentSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  fileName: String,
-  filePath: String,
+  filename: String,
+  originalname: String,
+  mimetype: String,
+  size: Number,
+  path: String,
+  uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
   uploadedAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model('Document', DocumentSchema);
+module.exports = mongoose.model("Document", DocumentSchema);

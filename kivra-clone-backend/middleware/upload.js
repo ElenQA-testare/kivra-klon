@@ -1,16 +1,32 @@
+// middleware/upload.js
 const multer = require("multer");
 const path = require("path");
 
-// Skapa en lagringskonfiguration för multer
+// 👇 Det här är filfiltret
+const fileFilter = (req, file, cb) => {
+  const allowedTypes = [
+    "application/pdf",
+    "image/jpeg",
+    "image/png",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+  ];
+
+  if (allowedTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error("Ogiltig filtyp"), false);
+  }
+};
+
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/"); // Spara filer i "uploads"-mappen
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
   },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname)); // Unikt filnamn
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname);
   },
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage, fileFilter });
 
 module.exports = upload;

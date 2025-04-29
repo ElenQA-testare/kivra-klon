@@ -1,7 +1,8 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./Navbar.css";
 import UserMenu from "./UserMenu";
+
 
 function Navbar() {
   const token = localStorage.getItem("token");
@@ -9,35 +10,24 @@ function Navbar() {
 
   return (
     <nav className="navbar">
-      {/* Övre navbar */}
-      <div className="top-nav">
-        <button className="nav-btn active">Private</button>
-        <button className="nav-btn">For business</button>
-      </div>
+      <div className="top-nav">{/* Här kan du lägga Private/Business */}</div>
 
-      {/* Huvudnavbar */}
       <div className="main-nav">
         <div className="nav-left">
           <div className="logo" onClick={() => navigate("/")}>KIVRA</div>
           <ul className="nav-links">
-            <li><Link to="/how-it-works">How it works</Link></li>
-            <li><Link to="/services">Our services</Link></li>
-            <li><Link to="/about">About us</Link></li>
-            <li><Link to="/help">Help</Link></li>
+            {/* Lägg till fler länkar om du vill */}
           </ul>
         </div>
 
         <div className="nav-right">
-          <button className="nav-btn">🇸🇪 Svenska</button>
-
-          {token ? (
-            <UserMenu />
-          ) : (
+          {token && (
             <>
-              <button className="nav-btn" onClick={() => navigate("/login")}>Log in</button>
-              <button className="nav-btn" onClick={() => navigate("/register")}>Register</button>
+              <UserMenu />
+              
             </>
           )}
+          {/* Logga in och Registrera har tagits bort */}
         </div>
       </div>
     </nav>

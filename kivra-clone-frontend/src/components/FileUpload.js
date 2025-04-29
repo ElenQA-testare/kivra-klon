@@ -29,7 +29,7 @@ function FileUpload({ onUploadSuccess }) {
       setFile(null);
       if (onUploadSuccess) onUploadSuccess();
     } catch (error) {
-      toast.error("❌ Fel vid uppladdning");
+      toast.error(" Fel vid uppladdning");
       console.error("Upload error:", error);
     }
   };
