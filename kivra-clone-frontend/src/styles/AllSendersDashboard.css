@@ -1,0 +1,29 @@
+.all-senders-dashboard {
+  padding: 2rem;
+}
+
+.senders-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.sender-card {
+  background: #f4f4f4;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.logo-circle {
+  background-color: #004000;
+  color: white;
+  font-weight: bold;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}

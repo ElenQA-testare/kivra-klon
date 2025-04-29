@@ -1,0 +1,24 @@
+.inbox-page {
+  padding: 20px;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+.inbox-page h1 {
+  color: #004000;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.inbox-messages {
+  list-style: none;
+  padding: 0;
+}
+
+.inbox-messages li {
+  background-color: white;
+  border-left: 4px solid #4CAF50;
+  margin-bottom: 10px;
+  padding: 10px 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}

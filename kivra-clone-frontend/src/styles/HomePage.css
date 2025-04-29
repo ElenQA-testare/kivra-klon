@@ -46,14 +46,35 @@ body {
   }
   
   .login-btn {
-    background-color: white;
-    color: #2e7d32;
-    border: 2px solid #2e7d32;
-    margin-left: 10px;
+    position: absolute;
+    top: 80px;
+    right: 20px;
+    background-color: #2e7d32; /* Grön bakgrund */
+    color: white; /* Vit text */
+    padding: 12px 20px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
   }
+  
   .hero-image img {
     width: 100%;  /* Ändra storleken, t.ex. 50% av originalet */
     max-width: 800px;  /* Maximal bredd */
     height: auto;  /* Bevara proportionerna */
+  }
+  .signup-btn:hover {
+    background-color: #256d27; /* Lite mörkare grön vid hover */
+  }
+  
+  .login-btn:hover {
+    background-color: #2e7d32;
+    color: white;
+  }
+  .login-btn {
+    position: absolute;
+    top: 60px;
+    right: 20px;
   }
   

@@ -1,26 +1,43 @@
+// src/pages/HomePage.js
 import React from "react";
-import { Link } from "react-router-dom";
-import "./../styles/Home.css"; // Kopplar till CSS
-import dogImage from "./../assets/dog.png"; // Lägg bilden i src/assets
+import { useNavigate } from "react-router-dom";
+import "../styles/HomePage.css"; // Viktigt! Importera CSS-filen
 
 function HomePage() {
+  const navigate = useNavigate();
+
   return (
-    <div className="home">
-      {/* Hero-sektion */}
+    <div className="home-container">
+      {/* Navbar */}
+      <header className="navbar">
+        
+        <div className="nav-buttons">
+          <button className="login-btn" onClick={() => navigate("/login")}>
+            Log in
+          </button>
+        </div>
+      </header>
+
+      {/* Hero Section */}
       <div className="hero-section">
+        {/* Text-sidan */}
         <div className="hero-text">
           <h1>For all the collectors out there</h1>
           <p>
-            A paper here, a receipt there. Can you relate? We have a better idea.
-            Imagine letters, bills, receipts, uploads, and other important things – all in one app.
-            Completely free, of course. Smart, secure, and sweet for the environment!
+            A paper here, a receipt there... Imagine letters, bills, receipts,
+            uploads — all safely collected in one app. Smart, safe and good for the environment!
           </p>
-          <Link to="/register" className="signup-btn">
-            <span className="bankid-icon">📲</span> Create account
-          </Link>
+          <button
+            className="create-account-btn"
+            onClick={() => navigate("/register")}
+          >
+            Create account
+          </button>
         </div>
+
+        {/* Bild-sidan */}
         <div className="hero-image">
-          <img src={dogImage} alt="Dog with tennis balls" />
+          <img src="/dog.jpg" alt="Cute dog" />
         </div>
       </div>
     </div>

@@ -1,68 +1,73 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import api from "../services/api";
 import "../styles/RegisterPage.css";
-import { toast } from "react-toastify";
 
 function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
+    setLoading(true);
 
     try {
-      const response = await api.post("/auth/register", {
-        name,
-        email,
-        password,
-      });
-      setSuccess("Kontot skapades!");
-      toast.success("Registrering lyckades!");
+      await api.post("/auth/register", { name, email, password });
+      toast.success("✅ Konto skapat!");
+      navigate("/login");
     } catch (error) {
-      const msg = error.response?.data?.error || "Registrering misslyckades";
-      setError(msg);
-      toast.error(msg);
+      toast.error("❌ Fel: " + (error.response?.data?.error || "Registrering misslyckades"));
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="register-container">
-      <h2>Skapa konto</h2>
-      {error && <p className="error-message">{error}</p>}
-      {success && <p className="success-message">{success}</p>}
+    <div className="register-wrapper">
+      <div className="register-left">
+        <h2>Skapa konto</h2>
+        <form onSubmit={handleRegister}>
+          <input
+            type="text"
+            placeholder="Namn"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+          <input
+            type="email"
+            placeholder="E-post"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Lösenord"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <button type="submit" disabled={loading}>
+            {loading ? "Registrerar..." : "Registrera"}
+          </button>
+        </form>
+        <p>Har du redan ett konto? <Link to="/login">Logga in här</Link></p>
+      </div>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Namn"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-        <input
-          type="email"
-          placeholder="E-post"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Lösenord"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit">Registrera</button>
-      </form>
-
-      <p>Har du redan ett konto? <Link to="/login">Logga in här</Link></p>
+      <div
+        className="register-right"
+        style={{
+          backgroundImage: `url(${process.env.PUBLIC_URL}/image.jpg)`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          borderRadius: "0 30px 30px 0",
+        }}
+      ></div>
     </div>
   );
 }
