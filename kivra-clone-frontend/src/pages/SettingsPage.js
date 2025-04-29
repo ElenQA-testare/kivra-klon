@@ -12,7 +12,7 @@ function SettingsPage() {
 
   return (
     <div className="settings-page">
-      {/* Språk */}
+    
       <div className="settings-section">
       
       </div>
