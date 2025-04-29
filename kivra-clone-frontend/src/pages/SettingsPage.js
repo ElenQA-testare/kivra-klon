@@ -14,11 +14,7 @@ function SettingsPage() {
     <div className="settings-page">
       {/* Språk */}
       <div className="settings-section">
-        <label htmlFor="language">🌍 Language:</label>
-        <select id="language" value={language} onChange={handleLanguageChange}>
-          <option value="sv">Svenska</option>
-          <option value="en">English</option>
-        </select>
+      
       </div>
 
       {/* Ändra lösenord */}
