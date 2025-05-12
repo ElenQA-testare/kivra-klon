@@ -1,83 +1,83 @@
-const express = require("express");
-const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
+const express = require('express');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');  // Required to check and create directories
+const Document = require('../models/Document');
+const authMiddleware = require('../middleware/authMiddleware');
+
 const router = express.Router();
-const Document = require("../models/Document");
-const auth = require('../middleware/authMiddleware');
 
+// 📁 Ensure that the uploads directory exists, and create it if it doesn't
+const uploadDir = path.join(__dirname, '..', 'uploads');
 
-// 📁 Konfiguration för Multer – var filerna sparas
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true }); // Create directory if not exists, including parent dirs if needed
+}
+
+// 📥 Multer configuration for storing uploaded files in the "uploads/" directory
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, "..", "uploads");
-    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
-    cb(null, uploadDir);
+    cb(null, uploadDir); // Store files in the uploads directory
   },
   filename: (req, file, cb) => {
-    const uniqueName = `${Date.now()}-${file.originalname}`;
-    cb(null, uniqueName);
+    cb(null, Date.now() + '-' + file.originalname); // Make the filename unique by adding a timestamp
   },
 });
 
 const upload = multer({ storage });
 
-//
-// 📤 POST /documents/upload – ladda upp fil
-//
-router.post("/upload", auth, upload.single("file"), async (req, res) => {
+// 📤 POST /documents/upload - Upload document to the server
+router.post('/upload', authMiddleware, upload.single('file'), async (req, res) => {
   try {
     const document = new Document({
       filename: req.file.filename,
       originalname: req.file.originalname,
       mimetype: req.file.mimetype,
       size: req.file.size,
-      path: `uploads/${req.file.filename}`,
+      path: `uploads/${req.file.filename}`, // Path where file is stored
       uploadedBy: req.userId,
-      read: false, // 🔴 standard: oläst
+      read: false,  // Default to unread
     });
 
     await document.save();
-    res.status(201).json({ message: "Dokument sparat", document });
+    res.status(201).json({ message: '✅ Dokument uppladdat!', document });
   } catch (err) {
-    console.error("❌ Upload error:", err);
-    res.status(500).json({ error: "Fel vid uppladdning" });
+    console.error(' Fel vid uppladdning:', err.message);
+    res.status(500).json({ error: 'Fel vid uppladdning', details: err.message });
   }
 });
 
-//
-// 📄 GET /documents – hämta dokument (valfritt filter read=false)
-//
-router.get("/", auth, async (req, res) => {
+// 📂 GET /documents - List all documents uploaded by the logged-in user
+router.get('/', authMiddleware, async (req, res) => {
   try {
     const filter = { uploadedBy: req.userId };
 
-    if (req.query.read === "false") {
+    // If the query parameter 'read' is false, only fetch unread documents
+    if (req.query.read === 'false') {
       filter.read = false;
     }
 
     const documents = await Document.find(filter).sort({ uploadedAt: -1 });
     res.json(documents);
   } catch (err) {
-    console.error("❌ Fetch error:", err);
-    res.status(500).json({ error: "Kunde inte hämta dokument" });
+    console.error(' Fel vid hämtning av dokument:', err.message);
+    res.status(500).json({ error: 'Fel vid hämtning av dokument', details: err.message });
   }
 });
 
-//
-// ✅ (Valfritt) PATCH /documents/:id/read – markera dokument som läst
-//
-router.patch("/:id/read", auth, async (req, res) => {
+// 🗑️ DELETE /documents/:id - Delete a document
+router.delete('/:id', authMiddleware, async (req, res) => {
   try {
-    const doc = await Document.findOneAndUpdate(
-      { _id: req.params.id, uploadedBy: req.userId },
-      { read: true },
-      { new: true }
-    );
-    if (!doc) return res.status(404).json({ error: "Dokument hittades inte" });
-    res.json(doc);
+    const document = await Document.findById(req.params.id);
+    if (!document) {
+      return res.status(404).json({ error: 'Dokument hittades inte' });
+    }
+
+    await document.deleteOne();
+    res.json({ message: '🗑️ Dokument raderat!' });
   } catch (err) {
-    res.status(500).json({ error: "Kunde inte uppdatera dokument" });
+    console.error(' Fel vid radering av dokument:', err.message);
+    res.status(500).json({ error: 'Fel vid radering', details: err.message });
   }
 });
 
