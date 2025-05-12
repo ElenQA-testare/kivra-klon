@@ -23,18 +23,26 @@ function InboxDashboard() {
   }, []);
 
   return (
-    <div>
-      <h1>📥 Dina dokument</h1>
-      <ul>
-        {documents.map((doc) => (
-          <li key={doc._id}>
-            📄 {doc.originalname} –{" "}
-            <a href={`http://localhost:5000/${doc.path}`} target="_blank" rel="noreferrer">
-              Öppna
-            </a>
-          </li>
-        ))}
-      </ul>
+    <div style={{ padding: "2rem" }}>
+      <h2>📥 Inbox</h2>
+      {documents.length === 0 ? (
+        <p>Inga dokument hittades.</p>
+      ) : (
+        <ul>
+          {documents.map((doc) => (
+            <li key={doc._id} data-testid={`doc-item-${doc._id}`}>
+              📄 {doc.originalname} –{" "}
+              <a
+                href={`http://localhost:5000/${doc.path}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Öppna
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

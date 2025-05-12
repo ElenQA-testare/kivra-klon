@@ -8,7 +8,7 @@ function AllSendersDashboard() {
     const fetchDocuments = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await api.get("/documents/list", {
+        const response = await api.get("/documents", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -24,7 +24,7 @@ function AllSendersDashboard() {
 
   return (
     <div style={{ padding: "2rem" }}>
-      <h2>📄 Alla Dokument</h2>
+      <h2> Alla Dokument</h2>
       {documents.length === 0 ? (
         <p>Inga dokument hittades.</p>
       ) : (
@@ -33,7 +33,7 @@ function AllSendersDashboard() {
             <li key={doc._id}>
               {doc.originalname} –{" "}
               <a
-                href={`http://localhost:5000/${doc.path}`}
+                href={`http://localhost:5000/uploads/${doc.filename}`}
                 target="_blank"
                 rel="noreferrer"
               >

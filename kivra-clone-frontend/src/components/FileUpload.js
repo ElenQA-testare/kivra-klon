@@ -11,7 +11,10 @@ function FileUpload({ onUploadSuccess }) {
   };
 
   const handleUpload = async () => {
-    if (!file) return;
+    if (!file) {
+      toast.warning("⚠️ Välj en fil innan du laddar upp.");
+      return;
+    }
 
     const formData = new FormData();
     formData.append("file", file);
@@ -29,7 +32,7 @@ function FileUpload({ onUploadSuccess }) {
       setFile(null);
       if (onUploadSuccess) onUploadSuccess();
     } catch (error) {
-      toast.error(" Fel vid uppladdning");
+      toast.error("❌ Fel vid uppladdning");
       console.error("Upload error:", error);
     }
   };
@@ -37,7 +40,13 @@ function FileUpload({ onUploadSuccess }) {
   return (
     <div>
       <h2>Ladda upp dokument</h2>
-      <input type="file" onChange={handleFileChange} />
+
+      <input
+        type="file"
+        data-testid="file-input" // 🔹 viktigt för Playwright!
+        onChange={handleFileChange}
+      />
+
       <button onClick={handleUpload}>Ladda upp</button>
     </div>
   );
