@@ -1,0 +1,123 @@
+name: CI/CD Pipeline with Playwright Tests
+
+on:
+  push:
+    branches: 
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  # Step 1: Run Playwright Tests on every push or pull request to the main branch
+  test:
+    runs-on: ubuntu-latest  # Using Ubuntu for testing
+
+    services:
+      mongodb:
+        image: mongo:6  # MongoDB as a service (if required for your backend)
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongo --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      # Checkout the code
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Set up Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      # Install backend dependencies
+      - name: Install backend dependencies
+        run: |
+          cd kivra-clone-backend
+          npm install
+
+      # Install frontend dependencies
+      - name: Install frontend dependencies
+        run: |
+          cd kivra-clone-frontend
+          npm install
+
+      # Start the backend service
+      - name: Start backend
+        run: |
+          cd kivra-clone-backend
+          nohup npm start &
+
+      # Start the frontend service
+      - name: Start frontend
+        run: |
+          cd kivra-clone-frontend
+          nohup npm run dev &
+
+      # Wait for backend to be ready
+      - name: Wait for backend to be ready
+        run: npx wait-on http://localhost:5000
+
+      # Wait for frontend to be ready
+      - name: Wait for frontend to be ready
+        run: npx wait-on http://localhost:3000
+
+      # Run Playwright tests
+      - name: Run Playwright tests
+        run: npx playwright test
+
+      # Upload Playwright test results
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-report
+          path: playwright-report/
+
+  # Step 2: Continuous Deployment (CD) to Heroku after successful tests
+  deploy-to-heroku:
+    needs: test
+    runs-on: ubuntu-latest
+    if: success()  # Only deploy if tests passed
+
+    steps:
+      # Checkout the repository again
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      # Install backend dependencies
+      - name: Install backend dependencies
+        run: |
+          cd kivra-clone-backend
+          npm install
+
+      # Install frontend dependencies
+      - name: Install frontend dependencies
+        run: |
+          cd kivra-clone-frontend
+          npm install
+
+      # Authenticate with Heroku
+      - name: Authenticate with Heroku
+        uses: akshnz/heroku-login-action@v2
+        with:
+          heroku_email: ${{ secrets.HEROKU_EMAIL }}
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+
+      # Deploy to Heroku
+      - name: Deploy to Heroku
+        run: |
+          cd kivra-clone-backend
+          git remote add heroku https://git.heroku.com/<your-app-name>.git
+          git push heroku main
