@@ -11,10 +11,6 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x, 22.x]
-
     services:
       mongodb:
         image: mongo:6
@@ -30,11 +26,11 @@ jobs:
       # Step 1: Checkout the repository
       - uses: actions/checkout@v4
 
-      # Step 2: Set up Node.js environment for the backend and frontend
-      - name: Use Node.js ${{ matrix.node-version }}
+      # Step 2: Set up Node.js v22.14
+      - name: Use Node.js 22.14.0
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '22.14.0'
           cache: 'npm'
 
       # Step 3: Install backend dependencies
@@ -84,4 +80,3 @@ jobs:
         with:
           name: playwright-report
           path: kivra-clone-frontend/playwright-report/**
-
