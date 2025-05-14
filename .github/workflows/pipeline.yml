@@ -3,10 +3,10 @@ name: CI/CD Pipeline for Kivra Clone
 on:
   push:
     branches:
-      - main
+      - main  # Trigger when pushing to the 'main' branch
   pull_request:
     branches:
-      - main
+      - main  # Trigger when a pull request targets the 'main' branch
 
 jobs:
   test-and-build:
@@ -24,74 +24,54 @@ jobs:
           --health-retries 5
 
     env:
-      MONGO_URI: ${{ secrets.MONGO_URI }}
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      PORT: 5000
+      MONGO_URI: "mongodb://localhost:27017/test-database"  # Set MongoDB URI for CI
 
     steps:
-      # Step 1: Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Set up Node.js
-      - name: Set up Node.js
+      - name: Set up Node.js for Backend
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
-      # Step 3: Install backend dependencies
       - name: Install backend dependencies
         run: |
           cd kivra-clone-backend
           npm install
 
-      # Step 4: Install frontend dependencies
       - name: Install frontend dependencies
         run: |
           cd kivra-clone-frontend
           npm install
 
-      # Step 5: Start backend
       - name: Start backend
         run: |
           cd kivra-clone-backend
-          nohup npm start > backend.log 2>&1 &
+          nohup npm start &
 
-      # Step 6: Start frontend
       - name: Start frontend
         run: |
           cd kivra-clone-frontend
-          nohup npm run dev > frontend.log 2>&1 &
+          nohup npm run dev &
 
-      # Step 7: Wait for backend to be ready
       - name: Wait for backend to be ready
         run: npx wait-on http://localhost:5000
 
-      # Step 8: Wait for frontend to be ready
       - name: Wait for frontend to be ready
         run: npx wait-on http://localhost:3000
 
-      # Step 9: Run Playwright tests for frontend
       - name: Run Playwright tests for frontend
-        run: |
-          npx playwright test
+        run: npx playwright test
 
-      # Step 10: Run backend tests
-      - name: Run backend tests
+      - name: Run backend tests (if any)
         run: |
           cd kivra-clone-backend
           npm test
 
-      # Step 11: Check if Playwright report exists
-      - name: Check Playwright report
-        run: |
-          echo "Listing files in the Playwright report directory"
-          ls -R ./playwright-report
-
-      # Step 12: Upload Playwright report as artifact
       - name: Upload Playwright report
-        if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: playwright-report
-          path: ./playwright-report/**
+          path: playwright-report/
+
