@@ -3,10 +3,10 @@ name: CI/CD Pipeline for Kivra-clone
 on:
   push:
     branches:
-      - main
+      - main  # Trigger when pushing to the 'main' branch
   pull_request:
     branches:
-      - main
+      - main  # Trigger when a pull request targets the 'main' branch
 
 jobs:
   test-and-build:
@@ -22,6 +22,9 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+
+    env:
+      MONGO_URI: "mongodb://localhost:27017/test-database"  # Set MongoDB URI for CI
 
     steps:
       - name: Checkout repository
@@ -58,19 +61,15 @@ jobs:
       - name: Wait for frontend to be ready
         run: npx wait-on http://localhost:3000
 
-      - name: Run Playwright tests
+      - name: Run Playwright tests for frontend
         run: npx playwright test
 
-      - name: Check if playwright report exists
+      - name: Run backend tests (if any)
         run: |
-          if [ -d "playwright-report" ]; then
-            echo "Playwright report exists"
-          else
-            echo "Playwright report does not exist"
-            exit 1
-          fi
+          cd kivra-clone-backend
+          npm test
 
-      - name: Upload Playwright report
+      - name: Upload Playwright report (if tests are run)
         if: always()
         uses: actions/upload-artifact@v2
         with:
