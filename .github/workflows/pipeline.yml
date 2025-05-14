@@ -3,26 +3,25 @@ name: CI/CD Pipeline for Kivra-Clone
 on:
   push:
     branches:
-      - "main"
+      - main
   pull_request:
     branches:
-      - "main"
+      - main
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     services:
       mongodb:
-        image: mongo:6
+        image: mongo:5.0  # Use a stable older version for testing
         ports:
           - 27017:27017
-        options: >-
-          --health-cmd "mongo --eval 'db.runCommand({ ping: 1 })'"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+        options: >
+          --bind_ip_all  # Simplified MongoDB options
+
+    env:
+      MONGO_URI: "mongodb://localhost:27017/kivra-clone"  # MongoDB URI for CI
 
     steps:
       # Step 1: Checkout the repository
@@ -35,45 +34,37 @@ jobs:
           node-version: '22.14.0'
           cache: 'npm'
 
-      # Step 3: Set environment variables using GitHub Secrets
-      - name: Set environment variables
-        run: echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> $GITHUB_ENV
-      - name: Set JWT secret
-        run: echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV
-      - name: Set port
-        run: echo "PORT=${{ secrets.PORT }}" >> $GITHUB_ENV
-
-      # Step 4: Install backend dependencies
+      # Step 3: Install backend dependencies
       - name: Install backend dependencies
         run: |
           cd kivra-clone-backend
           npm ci
 
-      # Step 5: Install frontend dependencies
+      # Step 4: Install frontend dependencies
       - name: Install frontend dependencies
         run: |
           cd kivra-clone-frontend
           npm ci
 
-      # Step 6: Run backend tests
+      # Step 5: Run backend tests
       - name: Run backend tests
         run: |
           cd kivra-clone-backend
           npm test
 
-      # Step 7: Build the frontend
+      # Step 6: Build the frontend
       - name: Build the frontend
         run: |
           cd kivra-clone-frontend
           npm run build --if-present
 
-      # Step 8: Run Playwright tests for frontend
+      # Step 7: Run Playwright tests for frontend
       - name: Run Playwright tests
         run: |
           cd kivra-clone-frontend
           npx playwright test
 
-      # Step 9: Check if Playwright report exists
+      # Step 8: Check if Playwright reports exist
       - name: Check if Playwright report exists
         run: |
           if [ -d "playwright-report" ]; then
@@ -83,7 +74,7 @@ jobs:
             exit 1
           fi
 
-      # Step 10: Upload Playwright report (if exists)
+      # Step 9: Upload Playwright report (if exists)
       - name: Upload Playwright report
         if: always()  # Upload the report even if tests fail
         uses: actions/upload-artifact@v4.6.2
