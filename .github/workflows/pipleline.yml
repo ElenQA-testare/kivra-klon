@@ -3,19 +3,18 @@ name: CI/CD Pipeline for Kivra-clone
 on:
   push:
     branches:
-      - main  # När kod pushas till main-grenen
+      - main
   pull_request:
     branches:
-      - main  # När en pull request görs mot main-grenen
+      - main
 
 jobs:
-  # Jobb 1: Testa och bygg applikationen
   test-and-build:
-    runs-on: ubuntu-latest  # Använder Ubuntu för att köra tester och bygga applikationen
+    runs-on: ubuntu-latest
 
     services:
       mongodb:
-        image: mongo:6  # Om din applikation använder MongoDB som databas
+        image: mongo:6
         ports:
           - 27017:27017
         options: >-
@@ -25,98 +24,55 @@ jobs:
           --health-retries 5
 
     steps:
-      # Steg 1: Checka ut koden från repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Steg 2: Ställ in Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
-      # Steg 3: Installera backend beroenden
       - name: Install backend dependencies
         run: |
           cd kivra-clone-backend
           npm install
 
-      # Steg 4: Installera frontend beroenden
       - name: Install frontend dependencies
         run: |
           cd kivra-clone-frontend
           npm install
 
-      # Steg 5: Starta backend-tjänsten
       - name: Start backend
         run: |
           cd kivra-clone-backend
           nohup npm start &
 
-      # Steg 6: Starta frontend-tjänsten
       - name: Start frontend
         run: |
           cd kivra-clone-frontend
           nohup npm run dev &
 
-      # Steg 7: Vänta tills backend och frontend är redo
       - name: Wait for backend to be ready
         run: npx wait-on http://localhost:5000
 
       - name: Wait for frontend to be ready
         run: npx wait-on http://localhost:3000
 
-      # Steg 8: Kör Playwright tester
       - name: Run Playwright tests
         run: npx playwright test
 
-      # Steg 9: Ladda upp Playwright test rapport (artifakt)
+      - name: Check if playwright report exists
+        run: |
+          if [ -d "playwright-report" ]; then
+            echo "Playwright report exists"
+          else
+            echo "Playwright report does not exist"
+            exit 1
+          fi
+
       - name: Upload Playwright report
-        if: always()  # Ladda upp rapporten även om testerna misslyckas
+        if: always()
         uses: actions/upload-artifact@v3
         with:
           name: playwright-report
-          path: playwright-report/
-
-  # Jobb 2: Kontinuerlig distribution (CD) till Heroku
-  deploy-to-heroku:
-    needs: test-and-build  # Körs endast om test och bygg jobb är framgångsrika
-    runs-on: ubuntu-latest
-    if: success()  # Körs bara om föregående jobb är framgångsrikt
-
-    steps:
-      # Steg 1: Checka ut koden från repository
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      # Steg 2: Ställ in Node.js
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      # Steg 3: Installera backend beroenden
-      - name: Install backend dependencies
-        run: |
-          cd kivra-clone-backend
-          npm install
-
-      # Steg 4: Installera frontend beroenden
-      - name: Install frontend dependencies
-        run: |
-          cd kivra-clone-frontend
-          npm install
-
-      # Steg 5: Autentisera med Heroku
-      - name: Authenticate with Heroku
-        uses: akshnz/heroku-login-action@v2
-        with:
-          heroku_email: ${{ secrets.HEROKU_EMAIL }}
-          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-
-      # Steg 6: Deploy till Heroku
-      - name: Deploy to Heroku
-        run: |
-          cd kivra-clone-backend
-          git remote add heroku https://git.heroku.com/<your-heroku-app-name>.git
-          git push heroku main
+          path: playwright-report/**
