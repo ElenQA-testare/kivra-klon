@@ -2,34 +2,33 @@ name: CI/CD Pipeline for Kivra-Clone
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
   pull_request:
-    branches:
-      - main
+    branches: [ "main" ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
 
     services:
       mongodb:
-        image: mongo:5.0  # Use a stable older version for testing
+        image: mongo:6
         ports:
           - 27017:27017
-        options: >
-          --bind_ip_all  # Simplified MongoDB options
-
-    env:
-      MONGO_URI: "mongodb://localhost:27017/kivra-clone"  # MongoDB URI for CI
+        options: >-
+          --health-cmd "mongo --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       # Step 1: Checkout the repository
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       # Step 2: Set up Node.js v22.14
-      - name: Use Node.js 22.14.0
-        uses: actions/setup-node@v4
+      - name: Set up Node.js 22.14.0
+        uses: actions/setup-node@v3
         with:
           node-version: '22.14.0'
           cache: 'npm'
@@ -77,7 +76,7 @@ jobs:
       # Step 9: Upload Playwright report (if exists)
       - name: Upload Playwright report
         if: always()  # Upload the report even if tests fail
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v3
         with:
           name: playwright-report
           path: kivra-clone-frontend/playwright-report/**
