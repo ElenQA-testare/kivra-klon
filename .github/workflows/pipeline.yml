@@ -14,14 +14,14 @@ jobs:
 
     services:
       mongodb:
-        image: mongo:latest  # Changed to use the latest version of MongoDB
+        image: mongo:5.0  # Use a stable older version for testing
         ports:
           - 27017:27017
-        options: >-
-          --bind_ip_all   # Temporarily removing health checks for testing
+        options: >
+          --bind_ip_all  # Simplified MongoDB options
 
     env:
-      MONGO_URI: "mongodb://localhost:27017/kivra-clone"  # Updated MongoDB URI
+      MONGO_URI: "mongodb://localhost:27017/kivra-clone"  # MongoDB URI for CI
 
     steps:
       # Step 1: Checkout the repository
