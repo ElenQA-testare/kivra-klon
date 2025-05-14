@@ -1,4 +1,4 @@
-name: Node.js CI
+name: CI/CD Pipeline for Kivra-Clone
 
 on:
   push:
@@ -8,54 +8,80 @@ on:
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node-version: [18.x, 20.x, 22.x]  # Node.js versions to test against
+        node-version: [18.x, 20.x, 22.x]
+
+    services:
+      mongodb:
+        image: mongo:6
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongo --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      # Step 1: Checkout the repository
+      - uses: actions/checkout@v4
 
-    - name: Set up Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
+      # Step 2: Set up Node.js environment for the backend and frontend
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
 
-    - name: Cache Node.js modules
-      uses: actions/cache@v2
-      with:
-        path: ~/.npm
-        key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-${{ matrix.node-version }}-
+      # Step 3: Install backend dependencies
+      - name: Install backend dependencies
+        run: |
+          cd kivra-clone-backend
+          npm ci
 
-    - name: Install dependencies
-      run: npm ci
+      # Step 4: Install frontend dependencies
+      - name: Install frontend dependencies
+        run: |
+          cd kivra-clone-frontend
+          npm ci
 
-    - name: Build the project (if applicable)
-      run: npm run build --if-present
+      # Step 5: Run backend tests
+      - name: Run backend tests
+        run: |
+          cd kivra-clone-backend
+          npm test
 
-    - name: Run tests
-      run: npm test
+      # Step 6: Build the frontend
+      - name: Build the frontend
+        run: |
+          cd kivra-clone-frontend
+          npm run build --if-present
 
-    - name: Run Playwright tests (if applicable)
-      run: npx playwright test
+      # Step 7: Run Playwright tests for frontend
+      - name: Run Playwright tests
+        run: |
+          cd kivra-clone-frontend
+          npx playwright test
 
-    - name: Check if Playwright report exists
-      run: |
-        if [ -d "playwright-report" ]; then
-          echo "Playwright report exists"
-        else
-          echo "Playwright report does not exist"
-          exit 1
-        fi
+      # Step 8: Check if Playwright reports exist
+      - name: Check if Playwright report exists
+        run: |
+          if [ -d "playwright-report" ]; then
+            echo "Playwright report exists"
+          else
+            echo "Playwright report does not exist"
+            exit 1
+          fi
 
-    - name: Upload Playwright report
-      if: always()  # Upload the report even if tests fail
-      uses: actions/upload-artifact@v2
-      with:
-        name: playwright-report
-        path: playwright-report/**  # Ensure the path is correct
+      # Step 9: Upload Playwright report (if exists)
+      - name: Upload Playwright report
+        if: always()  # Upload the report even if tests fail
+        uses: actions/upload-artifact@v2
+        with:
+          name: playwright-report
+          path: kivra-clone-frontend/playwright-report/**
+
