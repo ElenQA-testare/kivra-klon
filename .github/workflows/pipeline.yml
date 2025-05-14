@@ -76,7 +76,7 @@ jobs:
       # Step 9: Upload Playwright report (if exists)
       - name: Upload Playwright report
         if: always()  # Upload the report even if tests fail
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: playwright-report
           path: kivra-clone-frontend/playwright-report/**
