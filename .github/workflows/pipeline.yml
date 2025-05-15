@@ -36,7 +36,7 @@ jobs:
       - name: Install backend dependencies
         run: |
           cd kivra-clone-backend
-          npm ci
+          npm install --legacy-peer-deps
 
       # Step 4: Install frontend dependencies
       - name: Install frontend dependencies
