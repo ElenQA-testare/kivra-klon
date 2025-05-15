@@ -1,4 +1,4 @@
-name: Frontend E2E Tests with Playwright
+name: CI/CD Pipeline for Kivra-Clone
 
 on:
   push:
@@ -9,34 +9,81 @@ on:
       - main
 
 jobs:
-  frontend-e2e:
+  build:
     runs-on: ubuntu-latest
 
+    services:
+      mongodb:
+        image: mongo:5.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongo --eval 'db.stats()'" 
+          --health-interval 10s 
+          --health-timeout 5s 
+          --health-retries 5
+
+    env:
+      MONGO_URI: "mongodb://localhost:27017/kivra-clone"
+
     steps:
-      # Step 1: Checkout repo
+      # Step 1: Checkout repository
       - uses: actions/checkout@v4
 
-      # Step 2: Set up Node.js
-      - name: Use Node.js v22.14.0
+      # Step 2: Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22.14.0'
           cache: 'npm'
 
-      # Step 3: Install frontend dependencies
+      # Step 3: Install backend dependencies
+      - name: Install backend dependencies
+        run: |
+          cd kivra-clone-backend
+          npm ci
+
+      # Step 4: Install frontend dependencies
       - name: Install frontend dependencies
         run: |
           cd kivra-clone-frontend
           npm ci
 
-      # Step 4: Start frontend and run Playwright tests
-      - name: Run Playwright tests
+      # Step 5: Run backend tests
+      - name: Run backend tests
+        run: |
+          cd kivra-clone-backend
+          npm test
+
+      # Step 6: Build the frontend
+      - name: Build the frontend
+        run: |
+          cd kivra-clone-frontend
+          npm run build --if-present
+
+      # Step 7: Install Playwright browsers
+      - name: Install Playwright browsers
         run: |
           cd kivra-clone-frontend
           npx playwright install
+
+      # Step 8: Run Playwright tests
+      - name: Run Playwright tests
+        run: |
+          cd kivra-clone-frontend
           npx playwright test
 
-      # Step 5: Upload Playwright report
+      # Step 9: Check if Playwright report exists
+      - name: Check if Playwright report exists
+        run: |
+          if [ -d "kivra-clone-frontend/playwright-report" ]; then
+            echo "✅ Playwright report exists"
+          else
+            echo "❌ Playwright report does not exist"
+            exit 1
+          fi
+
+      # Step 10: Upload Playwright report
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4.6.2

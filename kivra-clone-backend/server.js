@@ -5,7 +5,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const path = require("path");
 
-// Importera routes
+// Import routes
 const authRoutes = require("./routes/auth");
 const documentRoutes = require("./routes/documentRoutes");
 
@@ -15,10 +15,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Statiska filer (för nedladdning av dokument)
+// Serve static files for document downloads
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Kontrollera miljövariabler
+// Check environment variables
 if (!process.env.MONGO_URI) {
   console.error("❌ MONGO_URI saknas i .env-filen");
   process.exit(1);
@@ -28,7 +28,7 @@ if (!process.env.JWT_SECRET) {
   process.exit(1);
 }
 
-// Anslut till MongoDB
+// Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB connected"))
@@ -37,10 +37,22 @@ mongoose
     process.exit(1);
   });
 
-// Använd routes
+// Use routes
 app.use("/api/auth", authRoutes);
 app.use("/api/documents", documentRoutes);
 
-// Starta servern
+// ✅ Test route for backend health check
+app.get("/api/status", (req, res) => {
+  res.json({ message: "Backend is alive" });
+});
+
+// Start the server if not in test mode
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(` Server running at http://localhost:${PORT}`));
+
+if (require.main === module) {
+  app.listen(PORT, () =>
+    console.log(`✅ Server running at http://localhost:${PORT}`)
+  );
+} else {
+  module.exports = app; // Export for Supertest
+}
