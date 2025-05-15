@@ -16,7 +16,7 @@ function DashboardPage() {
       setTokenValid(true);
       fetchDocuments(token);
     }
-  }, []);
+  }, [navigate]); // ✅ navigate tillagd här
 
   const fetchDocuments = async (token) => {
     try {
