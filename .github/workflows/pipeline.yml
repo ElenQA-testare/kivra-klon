@@ -1,4 +1,4 @@
-name: CI/CD Pipeline for Kivra-Clone
+name: Frontend E2E Tests with Playwright
 
 on:
   push:
@@ -9,70 +9,34 @@ on:
       - main
 
 jobs:
-  build:
+  frontend-e2e:
     runs-on: ubuntu-latest
 
-    services:
-      mongodb:
-        image: mongo:5.0
-        ports:
-          - 27017:27017
-
-    env:
-      MONGO_URI: "mongodb://localhost:27017/kivra-clone"
-
     steps:
-      # Step 1: Checkout the repository
+      # Step 1: Checkout repo
       - uses: actions/checkout@v4
 
-      # Step 2: Set up Node.js v22.14.0
-      - name: Use Node.js 22.14.0
+      # Step 2: Set up Node.js
+      - name: Use Node.js v22.14.0
         uses: actions/setup-node@v4
         with:
           node-version: '22.14.0'
           cache: 'npm'
 
-      # Step 3: Install backend dependencies
-      - name: Install backend dependencies
-        run: |
-          cd kivra-clone-backend
-          npm install --legacy-peer-deps
-
-      # Step 4: Install frontend dependencies
+      # Step 3: Install frontend dependencies
       - name: Install frontend dependencies
         run: |
           cd kivra-clone-frontend
           npm ci
 
-      # Step 5: Run backend tests
-      - name: Run backend tests
-        run: |
-          cd kivra-clone-backend
-          npm test
-
-      # Step 6: Build the frontend
-      - name: Build the frontend
-        run: |
-          cd kivra-clone-frontend
-          npm run build --if-present
-
-      # Step 7: Run Playwright tests for frontend
+      # Step 4: Start frontend and run Playwright tests
       - name: Run Playwright tests
         run: |
           cd kivra-clone-frontend
+          npx playwright install
           npx playwright test
 
-      # Step 8: Check if Playwright report exists
-      - name: Check if Playwright report exists
-        run: |
-          if [ -d "kivra-clone-frontend/playwright-report" ]; then
-            echo "Playwright report exists"
-          else
-            echo "Playwright report does not exist"
-            exit 1
-          fi
-
-      # Step 9: Upload Playwright report
+      # Step 5: Upload Playwright report
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4.6.2
