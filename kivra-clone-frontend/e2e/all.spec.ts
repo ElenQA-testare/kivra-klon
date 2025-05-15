@@ -76,10 +76,11 @@ test('TC-05: Ladda upp dokument och visa det i Inbox', async ({ page }) => {
 
   // 📤 Ladda upp dokument
   await page.goto('http://localhost:3000/dashboard/uploads');
-  const fileInput = page.getByTestId('file-input');
+  const fileInput = page.locator('[data-testid="file-input"]');
   await expect(fileInput).toBeVisible();
   await fileInput.setInputFiles(filePath);
   await page.click('button:has-text("Ladda upp")');
+
 
   // 📥 Gå till Inbox och kontrollera att filen finns där
   await page.goto('http://localhost:3000/dashboard/inbox');
